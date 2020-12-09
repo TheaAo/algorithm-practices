@@ -16,20 +16,50 @@
 
  /** 递归 */
 function buildTreeByRecursion(preorder, inorder) {
-  if (!preorder || !preorder.length || !inorder ||!inorder.length) return null;
-  const root = new TreeNode(preorder[0]);
-  const rootIndex = inorder.indexOf(preorder[0]);
+  if (!preorder || !preorder.length || !inorder ||!inorder.length || preorder.length !== inorder.length) return null;
 
-  if (rootIndex > -1) {
-    const leftInorder = inorder.slice(0, rootIndex);
-    const rightInorder = inorder.slice(rootIndex + 1);
-    const leftPreorder = preorder.slice(1, leftInorder.length + 1);
-    const rightPreorder = preorder.slice(leftInorder.length + 1);
-    root.left = buildTreeByRecursion(leftPreorder, leftInorder);
-    root.right = buildTreeByRecursion(rightPreorder, rightInorder);
+  function buildTree(preStart, inStart, treeLength) {
+    if (preStart < 0 || inStart < 0 || treeLength > inorder.length) {
+      return null;
+    }
+
+    const root = new TreeNode(preorder[preStart]);
+
+    if (treeLength === 1) {
+      return root;
+    }
+
+    let rootInorderIndex = null;
+
+    for (let i = inStart; i < inStart + treeLength; i++) {
+      if (inorder[i] === root.val) {
+        rootInorderIndex = i;
+        break;
+      }
+    }
+
+    if ( rootInorderIndex === null) {
+      return null;
+    }
+
+    const leftLength = rootInorderIndex - inStart;
+    const rightLength = treeLength - leftLength - 1;
+
+    if (leftLength === 1) {
+      root.left = new TreeNode(inorder[inStart]);
+    } else if (leftLength > 1) {
+      root.left = buildTree(preStart + 1, inStart, leftLength);
+    }
+
+    if (rightLength === 1) {
+      root.right = new TreeNode(inorder[rootInorderIndex + 1]);
+    } else if (rightLength > 1) {
+      root.right = buildTree(preStart + leftLength + 1, rootInorderIndex + 1, rightLength); 
+    }
     return root;
   }
-  return null;
+
+  return buildTree(0, 0, preorder.length);
 }
 
 /** 迭代 */
